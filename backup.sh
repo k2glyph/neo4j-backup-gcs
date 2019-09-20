@@ -41,8 +41,8 @@ neo4j-admin backup --backup-dir="$BACKUP_DIR/$BACKUP_SET" --name=graph.db-backup
 echo "Backup size:"
 du -hs "$BACKUP_DIR/$BACKUP_SET"
 
-echo "Tarring -> $BACKUP_DIR/$BACKUP_SET.tar"
-tar -cvfz "$BACKUP_DIR/$BACKUP_SET.tar.gz" "$BACKUP_DIR/$BACKUP_SET"
+echo "Tarring -> $BACKUP_DIR/$BACKUP_SET.tar.gz"
+tar -cvzf "$BACKUP_DIR/$BACKUP_SET.tar.gz" "$BACKUP_DIR/$BACKUP_SET"
 
 echo "Zipped backup size:"
 du -hs "$BACKUP_DIR/$BACKUP_SET.tar.gz"
