@@ -20,7 +20,7 @@ fi
 
 CURRENT_DATE=$(date -u +"%Y-%m-%dT%H%M%SZ")
 BACKUP_SET="$BACKUP_NAME-$CURRENT_DATE"
-BACKUP_DIR="/var/lib/neo4j"
+BACKUP_DIR="/var/lib/neo4j/backups"
 
 echo "Activating google credentials before beginning"
 gcloud auth activate-service-account --key-file "$GOOGLE_APPLICATION_CREDENTIALS"
