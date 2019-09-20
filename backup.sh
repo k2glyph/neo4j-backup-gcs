@@ -20,6 +20,7 @@ fi
 
 CURRENT_DATE=$(date -u +"%Y-%m-%dT%H%M%SZ")
 BACKUP_SET="$BACKUP_NAME-$CURRENT_DATE"
+BACKUP_DIR="/var/lib/neo4j"
 
 echo "Activating google credentials before beginning"
 gcloud auth activate-service-account --key-file "$GOOGLE_APPLICATION_CREDENTIALS"
@@ -30,23 +31,24 @@ if [ $? -ne 0 ] ; then
 fi
 
 echo "=============== NEO4J Backup ==============================="
-echo "Beginning backup from $NEO4J_HOST to /backup/$BACKUP_SET"
+echo "Beginning backup from $NEO4J_HOST to $BACKUP_DIR/$BACKUP_SET"
 echo "To google storage bucket $GCS_BUCKET_NEO4J using credentials located at $GOOGLE_APPLICATION_CREDENTIALS"
 echo "============================================================"
 
-neo4j-admin backup --backup-dir="/backup/$BACKUP_SET" --name=graph.db-backup --from="$NEO4J_HOST:$NEO4J_PORT" --protocol=catchup
+mkdir -p "$BACKUP_DIR/$BACKUP_SET"
+neo4j-admin backup --backup-dir="$BACKUP_DIR/$BACKUP_SET" --name=graph.db-backup --from="$NEO4J_HOST:$NEO4J_PORT" --protocol=catchup
 
 echo "Backup size:"
-du -hs "/backup/$BACKUP_SET"
+du -hs "$BACKUP_DIR/$BACKUP_SET"
 
-echo "Tarring -> /backup/$BACKUP_SET.tar"
-tar -cvfz "/backup/$BACKUP_SET.tar.gz" "/backup/$BACKUP_SET"
+echo "Tarring -> $BACKUP_DIR/$BACKUP_SET.tar"
+tar -cvfz "$BACKUP_DIR/$BACKUP_SET.tar.gz" "$BACKUP_DIR/$BACKUP_SET"
 
 echo "Zipped backup size:"
-du -hs "/backup/$BACKUP_SET.tar.gz"
+du -hs "$BACKUP_DIR/$BACKUP_SET.tar.gz"
 
-echo "Pushing /backup/$BACKUP_SET.tar.gz -> $GCS_BUCKET_NEO4J"
-gsutil cp "/backup/$BACKUP_SET.tar.gz" "$GCS_BUCKET_NEO4J"
+echo "Pushing $BACKUP_DIR/$BACKUP_SET.tar.gz -> $GCS_BUCKET_NEO4J"
+gsutil cp "$BACKUP_DIR/$BACKUP_SET.tar.gz" "$GCS_BUCKET_NEO4J"
 
 echo "Neo4j backups ended"
 exit $?
