@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 if [ -z $NEO4J_HOST ] ; then
     echo "You must specify a NEO4J_HOST env var"
