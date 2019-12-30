@@ -1,6 +1,6 @@
-FROM neo4j:3.4.5-enterprise
+FROM neo4j:3.5.14-enterprise
 
-RUN apk add curl python2
+RUN apt update && apt install -y curl python2
 
 USER neo4j
 RUN curl -sSL https://sdk.cloud.google.com | bash
