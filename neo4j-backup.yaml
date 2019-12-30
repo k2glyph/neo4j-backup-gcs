@@ -1,0 +1,47 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: neo4j-backup
+  namespace: neo4j-staging
+spec:
+  schedule: "0 */12 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+           volumes:
+             - name: creds
+               secret:
+                 secretName: neo4j-backup-sa
+                 items:
+                 - key: credentials.json
+                   path: credentials.json
+           restartPolicy: OnFailure
+           containers:
+             - name: neo4j-backup
+               image: medineshkatwal/neo4j-backup:v1.0
+               env:
+               - name: NEO4J_HOST
+                 value: "neo4j-host"
+               - name: NEO4J_PORT
+                 value: "6362"
+               - name: GCS_BUCKET_NEO4J
+                 value: "gs://bucket_name/"
+               - name: BACKUP_NAME
+                 value: backup_name
+               - name: GOOGLE_APPLICATION_CREDENTIALS
+                 value: /auth/credentials.json
+               volumeMounts:
+               - name: creds
+                 mountPath: /auth
+                 readOnly: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "neo4j-backup-sa"
+  namespace: neo4j-staging
+  labels:
+    app.kubernetes.io/name: "neo4j-backup-sa"
+data:
+  credentials.json: base64encoded-credentials.json
