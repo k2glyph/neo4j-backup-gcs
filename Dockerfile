@@ -1,4 +1,4 @@
-FROM neo4j:3.5.14-enterprise
+FROM neo4j:3.5-enterprise
 
 RUN apt update && apt install -y curl python2
 
