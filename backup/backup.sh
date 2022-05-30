@@ -37,7 +37,12 @@ echo "To google storage bucket $GCS_BUCKET_NEO4J using credentials located at $G
 echo "============================================================"
 
 mkdir -p "$BACKUP_DIR/$BACKUP_SET"
-NEO4J_HOST=$(kubectl get pods -n "$NEO4J_NAMESPACE" -owide | grep "$NEO4J_POD" |awk '{print $6}')
+# NEO4J_HOST=$(kubectl get pods -n "$NEO4J_NAMESPACE" -owide | grep "$NEO4J_POD" |awk '{print $6}')
+NEO4J_HOST="localhost"
+cmd="kubectl port-forward -n $NEO4J_NAMESPACE $NEO4J_POD 6362"
+
+$cmd &
+
 # kubectl cp "$NEO4J_NAMESPACE/$NEO4J_POD:/var/lib/neo4j/data/databases/graph.db" "$BACKUP_DIR/$BACKUP_SET/graph.db"
 neo4j-admin backup --backup-dir="$BACKUP_DIR/$BACKUP_SET" --name=graph.db-backup --from="$NEO4J_HOST:$NEO4J_PORT"
 
