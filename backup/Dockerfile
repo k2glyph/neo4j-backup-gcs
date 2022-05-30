@@ -1,3 +1,5 @@
+FROM bitnami/kubectl:1.20.9 as kubectl
+
 FROM neo4j:3.5-enterprise
 
 RUN apt update && apt install -y curl python2
@@ -9,8 +11,7 @@ ENV PATH $PATH:/var/lib/neo4j/google-cloud-sdk/bin
 RUN mkdir /var/lib/neo4j/backup
 RUN mkdir /var/lib/neo4j/scripts
 
-RUN gcloud components update && \
-    gcloud components update kubectl
+COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/
 
 ADD --chown=neo4j backup.sh /var/lib/neo4j/scripts/backup.sh
 RUN chmod +x /var/lib/neo4j/scripts/backup.sh
