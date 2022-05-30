@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-if [ -z $NEO4J_HOST ] ; then
-    echo "You must specify a NEO4J_HOST env var"
+if [ -z $NEO4J_POD ] ; then
+    echo "You must specify a NEO4J_POD env var"
     exit 1
 fi
-if [ -z $NEO4J_PORT ] ; then
-    echo "You must specify a NEO4J_PORT env var"
+if [ -z $NEO4J_NAMESPACE ] ; then
+    echo "You must specify a NEO4J_NAMESPACE env var"
     exit 1
 fi
 
@@ -16,12 +16,12 @@ if [ -z $GCS_BUCKET_NEO4J ]; then
 fi
 
 if [ -z $BACKUP_NAME ]; then
-    BACKUP_NAME=graph.db
+    BACKUP_NAME=graph.db-single-node-backup
 fi
 
 CURRENT_DATE=$(date -u +"%Y-%m-%dT%H%M%SZ")
 BACKUP_SET="$BACKUP_NAME-$CURRENT_DATE"
-BACKUP_DIR="/var/lib/neo4j/backups"
+BACKUP_DIR="/backups"
 
 echo "Activating google credentials before beginning"
 gcloud auth activate-service-account --key-file "$GOOGLE_APPLICATION_CREDENTIALS"
@@ -37,7 +37,8 @@ echo "To google storage bucket $GCS_BUCKET_NEO4J using credentials located at $G
 echo "============================================================"
 
 mkdir -p "$BACKUP_DIR/$BACKUP_SET"
-
+NEO4J_HOST=$(kubectl get pods -n "$NEO4J_NAMESPACE" -owide | grep "$NEO4J_POD" |awk '{print $6}')
+# kubectl cp "$NEO4J_NAMESPACE/$NEO4J_POD:/var/lib/neo4j/data/databases/graph.db" "$BACKUP_DIR/$BACKUP_SET/graph.db"
 neo4j-admin backup --backup-dir="$BACKUP_DIR/$BACKUP_SET" --name=graph.db-backup --from="$NEO4J_HOST:$NEO4J_PORT"
 
 echo "Backup size:"
